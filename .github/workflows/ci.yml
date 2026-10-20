@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -16,6 +16,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
 
     steps:
       - name: Download repository
@@ -37,3 +38,22 @@ jobs:
           tags: |
             ghcr.io/maornaim/aws-project:latest
             ghcr.io/maornaim/aws-project:sha-${{ github.sha }}
+
+      - name: Connect to AWS
+        if: github.event_name == 'push'
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::533267148415:role/maor-devops-github-actions-role
+          aws-region: eu-central-1
+
+      - name: Connect to EKS
+        if: github.event_name == 'push'
+        run: aws eks update-kubeconfig --name maor-devops-cluster --region eu-central-1
+
+      - name: Deploy new image
+        if: github.event_name == 'push'
+        run: kubectl set image deployment/app-deployment app=ghcr.io/maornaim/aws-project:sha-${{ github.sha }}
+
+      - name: Wait for deployment
+        if: github.event_name == 'push'
+        run: kubectl rollout status deployment/app-deployment
