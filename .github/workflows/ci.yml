@@ -53,6 +53,10 @@ jobs:
         if: github.event_name == 'push'
         run: aws eks update-kubeconfig --name maor-devops-cluster --region eu-central-1
 
+      - name: Apply Kubernetes files
+        if: github.event_name == 'push'
+        run: kubectl apply -f k8s/
+
       - name: Deploy new image
         if: github.event_name == 'push'
         run: kubectl set image deployment/app-deployment app=ghcr.io/maornaim/aws-project:sha-${{ github.sha }}

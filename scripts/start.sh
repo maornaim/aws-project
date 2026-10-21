@@ -35,4 +35,13 @@ kubectl wait --for=condition=complete job/db-init --timeout=180s
 kubectl apply -f k8s/app.yaml
 kubectl rollout status deployment/app-deployment --timeout=180s
 
+helm upgrade --install monitoring \
+  oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace \
+  --version 92.7.0 \
+  --values monitoring/values.yaml \
+  --wait \
+  --timeout 5m
+
 kubectl get service app-service

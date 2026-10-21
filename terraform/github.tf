@@ -62,6 +62,6 @@ resource "aws_eks_access_policy_association" "github_actions" {
 
   access_scope {
     type       = "namespace"
-    namespaces = ["default"]
+    namespaces = ["default", "monitoring"]
   }
 }

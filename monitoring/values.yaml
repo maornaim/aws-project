@@ -1,0 +1,19 @@
+alertmanager:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+prometheus:
+  prometheusSpec:
+    retention: 1d
+
+grafana:
+  service:
+    type: ClusterIP
