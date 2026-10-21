@@ -1,3 +1,4 @@
 Flask
 psycopg2-binary
 gunicorn==23.0.0
+prometheus-flask-exporter==0.23.2

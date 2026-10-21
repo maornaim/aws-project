@@ -2,10 +2,12 @@ import os
 
 from flask import Flask, render_template, request, jsonify
 from database import get_connection
+from prometheus_flask_exporter import PrometheusMetrics
 from psycopg2.errors import UniqueViolation
 
 app = Flask(__name__)
-
+metrics = PrometheusMetrics(app, path=None)
+metrics.start_http_server(8000)
 
 @app.route("/")
 def home():
