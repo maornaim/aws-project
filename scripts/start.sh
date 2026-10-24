@@ -32,9 +32,6 @@ kubectl create secret generic postgres-credentials \
 kubectl apply -f k8s/db-init-job.yaml
 kubectl wait --for=condition=complete job/db-init --timeout=180s
 
-kubectl apply -f k8s/app.yaml
-kubectl rollout status deployment/app-deployment --timeout=180s
-
 helm upgrade --install monitoring \
   oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack \
   --namespace monitoring \
@@ -43,5 +40,17 @@ helm upgrade --install monitoring \
   --values monitoring/values.yaml \
   --wait \
   --timeout 5m
+
+helm upgrade --install argocd \
+  oci://ghcr.io/argoproj/argo-helm/argo-cd \
+  --namespace argocd \
+  --create-namespace \
+  --version 10.11.1 \
+  --wait \
+  --timeout 5m
+
+kubectl apply -f argocd/application.yaml
+kubectl wait --for=jsonpath='{.status.sync.status}'=Synced application/aws-project -n argocd --timeout=300s
+kubectl wait --for=jsonpath='{.status.health.status}'=Healthy application/aws-project -n argocd --timeout=300s
 
 kubectl get service app-service
