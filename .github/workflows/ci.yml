@@ -14,9 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
+      contents: write
       packages: write
-      id-token: write
 
     steps:
       - name: Download repository
@@ -42,29 +41,12 @@ jobs:
             ghcr.io/maornaim/aws-project:latest
             ghcr.io/maornaim/aws-project:sha-${{ github.sha }}
 
-      - name: Connect to AWS
+      - name: Update image in Git
         if: github.event_name == 'push'
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: arn:aws:iam::533267148415:role/maor-devops-github-actions-role
-          aws-region: eu-central-1
-
-      - name: Connect to EKS
-        if: github.event_name == 'push'
-        run: aws eks update-kubeconfig --name maor-devops-cluster --region eu-central-1
-
-      - name: Apply Kubernetes files
-        if: github.event_name == 'push'
-        run: kubectl apply -f k8s/
-
-      - name: Deploy new image
-        if: github.event_name == 'push'
-        run: kubectl set image deployment/app-deployment app=ghcr.io/maornaim/aws-project:sha-${{ github.sha }}
-
-      - name: Wait for deployment
-        if: github.event_name == 'push'
-        run: kubectl rollout status deployment/app-deployment
-
-      - name: Run smoke test
-        if: github.event_name == 'push'
-        run: bash scripts/smoke.sh
+        run: |
+          sed -i "s|image: ghcr.io/maornaim/aws-project:.*|image: ghcr.io/maornaim/aws-project:sha-${GITHUB_SHA}|" k8s/app.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add k8s/app.yaml
+          git commit -m "Deploy image sha-${GITHUB_SHA}"
+          git push
