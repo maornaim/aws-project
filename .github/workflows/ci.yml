@@ -4,10 +4,26 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "app/**"
+      - "database.py"
+      - "database/init.sql"
+      - "Dockerfile"
+      - "compose.test.yml"
+      - "scripts/test.sh"
+      - ".github/workflows/ci.yml"
 
   pull_request:
     branches:
       - main
+    paths:
+      - "app/**"
+      - "database.py"
+      - "database/init.sql"
+      - "Dockerfile"
+      - "compose.test.yml"
+      - "scripts/test.sh"
+      - ".github/workflows/ci.yml"
 
 jobs:
   build:
