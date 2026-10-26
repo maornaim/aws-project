@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template, request, jsonify
-from database import get_connection
+from database import get_connection, insert_user, fetch_users
 from prometheus_flask_exporter import PrometheusMetrics
 from psycopg2.errors import UniqueViolation
 
@@ -68,31 +68,14 @@ def create_user():
     if "@" not in email:
         return {"error": "Email format is invalid"}, 400
 
-    connection = None
-    cursor = None
-
     try:
-        connection = get_connection()
-        cursor = connection.cursor()
-
-        cursor.execute(
-            """
-            INSERT INTO users (username, email)
-            VALUES (%s, %s)
-            """,
-            (username, email)
-        )
-
-        connection.commit()
+        insert_user(username, email)
 
         return jsonify({
             "message": "User created"
         }), 201
 
     except UniqueViolation:
-        if connection:
-            connection.rollback()
-
         app.logger.warning("Duplicate email rejected")
         return {"error": "Email already exists"}, 409
 
@@ -100,41 +83,16 @@ def create_user():
         app.logger.exception("Failed to create user")
         return {"error": "Database unavailable"}, 503
 
-    finally:
-        if cursor:
-            cursor.close()
-
-        if connection:
-            connection.close()
-
 @app.route("/users", methods=["GET"])
 def get_users():
-
-    connection = None
-    cursor = None
-
     try:
-        connection = get_connection()
-        cursor = connection.cursor()
-
-        cursor.execute(
-            "SELECT id, username, email FROM users"
-        )
-
-        users = cursor.fetchall()
+        users = fetch_users()
 
         return jsonify(users), 200
 
     except Exception:
         app.logger.exception("Failed to get users")
         return {"error": "Database unavailable"}, 503
-
-    finally:
-        if cursor:
-            cursor.close()
-
-        if connection:
-            connection.close()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

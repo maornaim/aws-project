@@ -16,21 +16,55 @@ def get_connection():
 
 
 
-def create_user(username, email):
+def insert_user(username, email):
+    connection = None
+    cursor = None
 
-    connection = get_connection()
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
 
-    cursor = connection.cursor()
+        cursor.execute(
+            """
+            INSERT INTO users (username, email)
+            VALUES (%s, %s)
+            """,
+            (username, email)
+        )
 
-    cursor.execute(
-        """
-        INSERT INTO users (username, email)
-        VALUES (%s, %s)
-        """,
-        (username, email)
-    )
+        connection.commit()
 
-    connection.commit()
+    except Exception:
+        if connection:
+            connection.rollback()
 
-    cursor.close()
-    connection.close()
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()
+
+
+def fetch_users():
+    connection = None
+    cursor = None
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        cursor.execute(
+            "SELECT id, username, email FROM users"
+        )
+
+        return cursor.fetchall()
+
+    finally:
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()

@@ -3,6 +3,7 @@ set -e
 
 cd "$(dirname "$0")/.."
 
+kubectl delete application aws-project -n argocd --ignore-not-found
 kubectl delete -f k8s/app.yaml --ignore-not-found
 kubectl delete -f k8s/db-init-job.yaml --ignore-not-found
 kubectl delete secret postgres-credentials --ignore-not-found
