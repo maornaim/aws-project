@@ -14,6 +14,8 @@ DB_SECRET="postgres-credentials"
 MONITORING_VALUES_FILE="monitoring/values.yaml"
 MONITORING_VERSION="92.7.0"
 
+METRICS_SERVER_VERSION="3.14.0"
+
 ARGO_NAMESPACE="argocd"
 ARGO_APPLICATION_FILE="argocd/application.yaml"
 ARGOCD_VERSION="10.11.1"

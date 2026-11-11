@@ -37,6 +37,17 @@ start_environment() {
     --wait \
     --timeout 5m
 
+  helm repo add metrics-server \
+    https://kubernetes-sigs.github.io/metrics-server/ \
+    --force-update
+
+  helm upgrade --install metrics-server \
+    metrics-server/metrics-server \
+    --namespace kube-system \
+    --version "$METRICS_SERVER_VERSION" \
+    --wait \
+    --timeout 5m
+
   helm upgrade --install argocd \
     oci://ghcr.io/argoproj/argo-helm/argo-cd \
     --namespace "$ARGO_NAMESPACE" \
