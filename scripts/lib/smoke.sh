@@ -4,10 +4,8 @@ smoke_test() {
     service/"$SERVICE_NAME" \
     --timeout=5m
 
-  HOST=$(kubectl get service "$SERVICE_NAME" \
-    -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-
-  URL="http://$HOST"
+  URL="http://$(kubectl get service "$SERVICE_NAME" \
+    -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
 
   echo "Testing $URL/health"
   curl --fail "$URL/health"
