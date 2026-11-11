@@ -25,6 +25,19 @@ Dockerfile   Application container image
 database.py  PostgreSQL connection code
 ```
 
+## Project scripts
+
+The project operations are available through one script:
+
+```bash
+bash scripts/manage.sh -a start
+bash scripts/manage.sh -a stop
+bash scripts/manage.sh -a smoke
+bash scripts/manage.sh -a test
+```
+
+The `start` action creates the environment. The `stop` action destroys the EKS node group, EKS cluster and RDS database. The `smoke` action checks the deployed application. The `test` action runs the local integration tests.
+
 ## Infrastructure
 
 Terraform uses the existing remote state:
