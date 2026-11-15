@@ -35,7 +35,10 @@ spec:
             - /sql/init.sql
           env:
             - name: PGHOST
-              value: "maor-devops-postgres.ch8kswe6w1qn.eu-central-1.rds.amazonaws.com"
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: DB_HOST
             - name: PGPORT
               value: "5432"
             - name: PGUSER

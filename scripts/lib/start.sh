@@ -18,6 +18,12 @@ start_environment() {
     --output text |
     python -c 'import json,sys; print(json.load(sys.stdin)["password"])')
 
+  DB_HOST=$(terraform -chdir="$TERRAFORM_DIR" output -raw rds_host)
+
+  kubectl create configmap "$DB_CONFIG_MAP" \
+    --from-literal=DB_HOST="$DB_HOST" \
+    --dry-run=client -o yaml | kubectl apply -f -
+
   kubectl delete secret "$DB_SECRET" --ignore-not-found
 
   kubectl create secret generic "$DB_SECRET" \

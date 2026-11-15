@@ -10,6 +10,7 @@ TERRAFORM_DIR="terraform"
 APP_FILE="k8s/app.yaml"
 DB_JOB_FILE="k8s/db-init-job.yaml"
 DB_SECRET="postgres-credentials"
+DB_CONFIG_MAP="db-config"
 
 MONITORING_VALUES_FILE="monitoring/values.yaml"
 MONITORING_VERSION="92.7.0"

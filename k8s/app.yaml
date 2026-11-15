@@ -4,7 +4,6 @@ metadata:
   name: app-config
 data:
   APP_ENV: "AWS EKS"
-  DB_HOST: "maor-devops-postgres.ch8kswe6w1qn.eu-central-1.rds.amazonaws.com"
   DB_PORT: "5432"
   DB_NAME: "dashboard"
 
@@ -37,7 +36,7 @@ spec:
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: app-config
+                  name: db-config
                   key: DB_HOST
             - name: DB_PORT
               valueFrom:
