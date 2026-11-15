@@ -31,6 +31,7 @@ start_environment() {
     --from-literal=POSTGRES_PASSWORD="$DB_PASSWORD" \
     --from-literal=POSTGRES_DB=dashboard
 
+  kubectl delete job db-init --ignore-not-found
   kubectl apply -f "$DB_JOB_FILE"
   kubectl wait --for=condition=complete job/db-init --timeout=180s
 
