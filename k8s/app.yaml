@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/maornaim/aws-project:sha-b8473e688a9916b1bede3ea8ae8a0f27c760cb6a
+          image: ghcr.io/maornaim/aws-project:sha-9b9e99dea395a3d870052875c8103e2e2b93e394
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
