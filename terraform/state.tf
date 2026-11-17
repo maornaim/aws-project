@@ -1,10 +1,4 @@
 terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-  }
-
   backend "s3" {
     bucket       = "maor-devops-tfstate-533267148415"
     key          = "terraform.tfstate"
