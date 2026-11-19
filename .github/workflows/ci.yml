@@ -11,6 +11,7 @@ on:
       - "Dockerfile"
       - "compose.test.yml"
       - "scripts/**"
+      - "terraform/**"
       - ".github/workflows/ci.yml"
 
   pull_request:
@@ -23,15 +24,16 @@ on:
       - "Dockerfile"
       - "compose.test.yml"
       - "scripts/**"
+      - "terraform/**"
       - ".github/workflows/ci.yml"
 
 jobs:
-  build:
+  test:
+    name: Test application
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
-      packages: write
+      contents: read
 
     steps:
       - name: Download repository
@@ -40,8 +42,65 @@ jobs:
       - name: Run integration test
         run: bash scripts/manage.sh -a test
 
+  terraform:
+    name: Apply Terraform
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v6
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4.0.1
+        with:
+          terraform_version: 1.16.2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::533267148415:role/maor-devops-github-terraform-role
+          aws-region: eu-central-1
+
+      - name: Initialize Terraform
+        working-directory: terraform
+        run: terraform init -input=false
+
+      - name: Check Terraform formatting
+        working-directory: terraform
+        run: terraform fmt -check
+
+      - name: Validate Terraform
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Plan Terraform changes
+        working-directory: terraform
+        run: terraform plan -input=false
+
+      - name: Apply Terraform changes
+        working-directory: terraform
+        run: terraform apply -auto-approve -input=false
+
+  build_and_publish:
+    name: Build and publish image
+    needs: terraform
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v6
+
       - name: Log in to GHCR
-        if: github.event_name == 'push'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -52,13 +111,24 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          push: ${{ github.event_name == 'push' }}
+          push: true
           tags: |
             ghcr.io/maornaim/aws-project:latest
             ghcr.io/maornaim/aws-project:sha-${{ github.sha }}
 
+  update_manifest:
+    name: Update Kubernetes manifest
+    needs: build_and_publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v6
+
       - name: Update image in Git
-        if: github.event_name == 'push'
         run: |
           sed -i "s|image: ghcr.io/maornaim/aws-project:.*|image: ghcr.io/maornaim/aws-project:sha-${GITHUB_SHA}|" k8s/app.yaml
           git config user.name "github-actions[bot]"
