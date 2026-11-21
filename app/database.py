@@ -15,7 +15,6 @@ def get_connection():
     return connection
 
 
-
 def insert_user(username, email):
     connection = None
     cursor = None

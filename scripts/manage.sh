@@ -6,11 +6,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 cd "$SCRIPT_DIR/.."
 
-source "$SCRIPT_DIR/lib/config.sh"
-source "$SCRIPT_DIR/lib/start.sh"
-source "$SCRIPT_DIR/lib/stop.sh"
-source "$SCRIPT_DIR/lib/smoke.sh"
-source "$SCRIPT_DIR/lib/test.sh"
+source "$SCRIPT_DIR/config.sh"
+source "$SCRIPT_DIR/start-stop/start.sh"
+source "$SCRIPT_DIR/start-stop/stop.sh"
+source "$SCRIPT_DIR/tests/smoke.sh"
+source "$SCRIPT_DIR/tests/test.sh"
 
 action=""
 
